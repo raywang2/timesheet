@@ -7,5 +7,11 @@
     "start": "node index.js"
   },
   "author": "Ray Wang",
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "dotenv": "^10.0.0",
+    "moment": "^2.29.1",
+    "moment-timezone": "^0.5.33",
+    "node-fetch": "^2.6.1"
+  }
 }
