@@ -1,15 +1,9 @@
 const fetch = require('node-fetch');
 const https = require('https');
 const moment = require('moment-timezone');
+const crypto = require('crypto');
 
 const { AUTHORIZATION, TOKEN, X_CUSTOM_HEADER, HOST } = require('./config');
-
-function generateWorkLength() {
-  const min = 5 * 60 * 60;
-  const max = 6 * 60 * 60;
-
-  return Math.floor(Math.random() * (max - min) + min);
-}
 
 function log() {
   const body = {
@@ -23,7 +17,7 @@ function log() {
     .fill({ ...body })
     .map((x, i) => ({
       ...x,
-      length: generateWorkLength(),
+      length: crypto.randomInt(5 * 60 * 60, 6 * 60 * 60 + 1),
       timestamp: moment.tz('UTC').startOf('month').add(i, 'days').toISOString(),
     }))
     .filter((x) => ![6, 7].includes(moment(x.timestamp).isoWeekday()));
