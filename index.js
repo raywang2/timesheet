@@ -26,7 +26,7 @@ function log() {
       length: generateWorkLength(),
       timestamp: moment.tz('UTC').startOf('month').add(i, 'days').toISOString(),
     }))
-    .filter((x) => [6, 7].includes(moment(x.timestamp).isoWeekday()) === false);
+    .filter((x) => ![6, 7].includes(moment(x.timestamp).isoWeekday()));
 
   const host = `https://${HOST}/api-internal/rest/worklogs/batch?api-version=3.1`;
 
