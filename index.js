@@ -7,6 +7,9 @@ const workdays = require('./calendars');
 
 const { AUTHORIZATION, TOKEN, X_CUSTOM_HEADER, HOST } = require('./config');
 
+const yearHeader = '西元日期';
+const format = 'YYYYMMDD';
+
 function log() {
   const body = {
     workItemId: 201435,
@@ -18,13 +21,11 @@ function log() {
   console.log('workdays:', workdays);
   console.log('# workday:', workdays.length);
 
-  const payload = Array(workdays.length)
-    .fill({ ...body })
-    .map((x, i) => ({
-      ...x,
-      length: crypto.randomInt(5 * 60 * 60, 6 * 60 * 60 + 1),
-      timestamp: moment.tz('UTC').startOf('month').add(i, 'days').toISOString(),
-    }));
+  const payload = workdays.map((x) => ({
+    ...body,
+    length: crypto.randomInt(5 * 60 * 60, 6 * 60 * 60 + 1),
+    timestamp: moment.tz(x[yearHeader], format, 'UTC').toISOString(),
+  }));
 
   console.log('payload:', payload);
 
