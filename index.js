@@ -1,16 +1,6 @@
-const {
-  parsed: {
-    AUTHORIZATION,
-    TOKEN,
-    X_CUSTOM_HEADER,
+const { parsed: config } = require('dotenv').config();
 
-    HOST,
-
-    ACTIVITY_TYPE_ID,
-    USER_ID,
-    WORK_ITEM_ID,
-  },
-} = require('dotenv').config();
+const inquirer = require('inquirer');
 
 const fetch = require('node-fetch');
 const https = require('https');
@@ -22,12 +12,22 @@ const workdays = require('./calendars');
 const yearHeader = '西元日期';
 const format = 'YYYYMMDD';
 
-function log() {
+function log(userInput) {
+  const {
+    activityTypeId,
+    authorization,
+    host,
+    token,
+    userId,
+    workItemId,
+    xCustomHeader,
+  } = userInput;
+
   const body = {
-    workItemId: WORK_ITEM_ID,
+    workItemId,
     comment: '',
-    activityTypeId: ACTIVITY_TYPE_ID,
-    userId: USER_ID,
+    activityTypeId,
+    userId,
   };
 
   console.log('workdays:', workdays);
@@ -41,13 +41,13 @@ function log() {
 
   console.log('payload:', payload);
 
-  const url = `https://${HOST}/api-internal/rest/worklogs/batch?api-version=3.1`;
+  const url = `https://${host}/api-internal/rest/worklogs/batch?api-version=3.1`;
 
   const headers = {
     'content-type': 'application/json;charset=UTF-8',
-    authorization: AUTHORIZATION,
-    token: TOKEN,
-    'x-custom-header': X_CUSTOM_HEADER,
+    authorization,
+    token,
+    'x-custom-header': xCustomHeader,
   };
 
   const httpsAgent = new https.Agent({
@@ -64,4 +64,93 @@ function log() {
     .catch((e) => console.log('error', e));
 }
 
-log();
+const questions = [
+  {
+    type: 'input',
+    name: 'authorization',
+    message: 'what is your authorization?',
+    when(answers) {
+      if (!config?.AUTHORIZATION) {
+        return true;
+      }
+      answers.authorization = config.AUTHORIZATION;
+    },
+  },
+  {
+    type: 'input',
+    name: 'token',
+    message: 'what is your token?',
+    when(answers) {
+      if (!config?.TOKEN) {
+        return true;
+      }
+      answers.token = config.TOKEN;
+    },
+  },
+  {
+    type: 'input',
+    name: 'xCustomHeader',
+    message: 'what is your x-custom-header?',
+    when(answers) {
+      if (!config?.X_CUSTOM_HEADER) {
+        return true;
+      }
+      answers.xCustomHeader = config.X_CUSTOM_HEADER;
+    },
+  },
+  {
+    type: 'input',
+    name: 'host',
+    message: 'what is your host?',
+    when(answers) {
+      if (!config?.HOST) {
+        return true;
+      }
+      answers.host = config.HOST;
+    },
+  },
+  {
+    type: 'input',
+    name: 'activityTypeId',
+    message: 'what is your activity type id?',
+    when(answers) {
+      if (!config?.ACTIVITY_TYPE_ID) {
+        return true;
+      }
+
+      answers.activityTypeId = config.ACTIVITY_TYPE_ID;
+    },
+  },
+  {
+    type: 'input',
+    name: 'workItemId',
+    message: 'what is your work item id?',
+    when(answers) {
+      if (!config?.WORK_ITEM_ID) {
+        return true;
+      }
+
+      answers.workItemId = config.WORK_ITEM_ID;
+    },
+  },
+  {
+    type: 'input',
+    name: 'userId',
+    message: 'what is your user id?',
+    when(answers) {
+      if (!config?.USER_ID) {
+        return true;
+      }
+      answers.userId = config.USER_ID;
+    },
+  },
+];
+
+console.log('Hi, welcome to time sheet');
+
+inquirer
+  .prompt(questions)
+  .then((userInput) => {
+    log(userInput);
+  })
+  .catch((error) => console.error(error));
