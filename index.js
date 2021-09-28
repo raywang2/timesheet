@@ -1,11 +1,13 @@
+const {
+  parsed: { AUTHORIZATION, TOKEN, X_CUSTOM_HEADER, HOST },
+} = require('dotenv').config();
+
 const fetch = require('node-fetch');
 const https = require('https');
 const moment = require('moment-timezone');
 const crypto = require('crypto');
 
 const workdays = require('./calendars');
-
-const { AUTHORIZATION, TOKEN, X_CUSTOM_HEADER, HOST } = require('./config');
 
 const yearHeader = '西元日期';
 const format = 'YYYYMMDD';
