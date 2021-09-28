@@ -1,5 +1,15 @@
 const {
-  parsed: { AUTHORIZATION, TOKEN, X_CUSTOM_HEADER, HOST },
+  parsed: {
+    AUTHORIZATION,
+    TOKEN,
+    X_CUSTOM_HEADER,
+
+    HOST,
+
+    ACTIVITY_TYPE_ID,
+    USER_ID,
+    WORK_ITEM_ID,
+  },
 } = require('dotenv').config();
 
 const fetch = require('node-fetch');
@@ -14,10 +24,10 @@ const format = 'YYYYMMDD';
 
 function log() {
   const body = {
-    workItemId: 201435,
+    workItemId: WORK_ITEM_ID,
     comment: '',
-    activityTypeId: '16f814c6-f8d4-4b68-bfa7-40ffa94b59ce',
-    userId: '18480d65-b5f6-4e06-a18a-ff1998ebd6a4',
+    activityTypeId: ACTIVITY_TYPE_ID,
+    userId: USER_ID,
   };
 
   console.log('workdays:', workdays);
