@@ -12,17 +12,32 @@ const workdays = require('./calendars');
 const yearHeader = '西元日期';
 const format = 'YYYYMMDD';
 
-function log(userInput) {
-  const {
-    activityTypeId,
-    authorization,
-    host,
-    token,
-    userId,
-    workItemId,
-    xCustomHeader,
-  } = userInput;
+function getUser({ host, apiToken }) {
+  const url = `https://${host}/api-internal/rest/me?api-version=3.1`;
 
+  const headers = {
+    'content-type': 'application/json',
+    authorization: `Bearer ${apiToken}`,
+  };
+
+  const httpsAgent = new https.Agent({
+    rejectUnauthorized: false,
+  });
+
+  return fetch(url, {
+    headers,
+    method: 'GET',
+    agent: httpsAgent,
+  })
+    .then((res) => res.json())
+    .then(({ data: { user } }) => user)
+    .catch((e) => {
+      console.error(e);
+      return {};
+    });
+}
+
+function log({ activityTypeId, apiToken, host, userId, workItemId }) {
   const body = {
     workItemId,
     comment: '',
@@ -45,9 +60,7 @@ function log(userInput) {
 
   const headers = {
     'content-type': 'application/json;charset=UTF-8',
-    authorization,
-    token,
-    'x-custom-header': xCustomHeader,
+    authorization: `Bearer ${apiToken}`,
   };
 
   const httpsAgent = new https.Agent({
@@ -67,35 +80,13 @@ function log(userInput) {
 const questions = [
   {
     type: 'input',
-    name: 'authorization',
-    message: 'what is your authorization?',
+    name: 'apiToken',
+    message: 'what is your api-token?',
     when(answers) {
-      if (!config?.AUTHORIZATION) {
+      if (!config?.API_TOKEN) {
         return true;
       }
-      answers.authorization = config.AUTHORIZATION;
-    },
-  },
-  {
-    type: 'input',
-    name: 'token',
-    message: 'what is your token?',
-    when(answers) {
-      if (!config?.TOKEN) {
-        return true;
-      }
-      answers.token = config.TOKEN;
-    },
-  },
-  {
-    type: 'input',
-    name: 'xCustomHeader',
-    message: 'what is your x-custom-header?',
-    when(answers) {
-      if (!config?.X_CUSTOM_HEADER) {
-        return true;
-      }
-      answers.xCustomHeader = config.X_CUSTOM_HEADER;
+      answers.apiToken = config.API_TOKEN;
     },
   },
   {
@@ -150,7 +141,8 @@ console.log('Hi, welcome to time sheet');
 
 inquirer
   .prompt(questions)
-  .then((userInput) => {
-    log(userInput);
+  .then(async (userInput) => {
+    const currentUser = await getUser(userInput);
+    log({ ...userInput, userId: currentUser.id });
   })
   .catch((error) => console.error(error));
